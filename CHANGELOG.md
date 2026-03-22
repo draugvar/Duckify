@@ -2,6 +2,12 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.2] - 2026-03-22
+
+### Fixed
+- macOS app icon not showing in Finder — `icon.icns` was missing from `Contents/Resources/` in the `.app` bundle produced by the release workflow
+- `Info.plist` path in release workflow corrected from root to `assets/Info.plist`
+
 ## [1.1.1] - 2026-03-22
 
 ### Fixed
