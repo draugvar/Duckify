@@ -2,6 +2,12 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.1] - 2026-03-22
+
+### Fixed
+- GitHub release cleanup job now uses explicit `actions: write` permissions so artifact deletion API calls no longer fail with HTTP 403
+- Artifact cleanup now handles empty lists and continues on single delete failures, emitting warnings instead of failing the whole workflow
+
 ## [1.1.0] - 2026-03-22
 
 ### Added
