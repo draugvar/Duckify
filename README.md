@@ -2,6 +2,8 @@
 
 A minimal native desktop app that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias — instantly copied to your clipboard.
 
+<img src="assets/screenshot.png" width="445" alt="Duckify screenshot" />
+
 ```
 user@example.com  →  user_at_example.com_yourname@duck.com
 ```

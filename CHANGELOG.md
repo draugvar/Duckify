@@ -2,6 +2,11 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.5] - 2026-03-22
+
+### Changed
+- README now includes a screenshot of the app
+
 ## [1.1.4] - 2026-03-22
 
 ### Changed
