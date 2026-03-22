@@ -1,1 +1,38 @@
+# Rust
 /target
+**/*.rs.bk
+
+# IDE — JetBrains (CLion, RustRover)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# IDE — VS Code
+.vscode/
+
+# IDE — Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Environment
+.env
+.env.local
