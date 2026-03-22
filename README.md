@@ -33,7 +33,7 @@ Pre-built binaries are available on the [Releases](../../releases) page for:
 Requires [Rust](https://rustup.rs/) 1.85+.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/duckify.git
+git clone https://github.com/draugvar/duckify.git
 cd duckify
 cargo build --release
 ```
