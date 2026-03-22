@@ -2,6 +2,12 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.3] - 2026-03-22
+
+### Added
+- Homebrew Cask support via `draugvar/homebrew-duckify` tap — install with `brew tap draugvar/duckify && brew install --cask duckify`
+- Release workflow now automatically updates the Homebrew tap formula with the correct version and SHA256 after each release
+
 ## [1.1.2] - 2026-03-22
 
 ### Fixed
