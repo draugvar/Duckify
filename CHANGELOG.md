@@ -2,6 +2,11 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.4] - 2026-03-22
+
+### Changed
+- README modernized: cleaner structure, install table per platform, Homebrew install instructions as primary method
+
 ## [1.1.3] - 2026-03-22
 
 ### Added

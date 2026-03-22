@@ -1,52 +1,67 @@
 # Duckify
 
-A minimal native desktop app that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias.
-
-## What it does
-
-DuckDuckGo Email Protection lets you create aliases in the form:
-
-```
-original_user_at_original_domain.com_yourname@duck.com
-```
-
-Duckify automates that transformation — paste any email, click **Convert**, and the alias is ready in your clipboard.
-
-## Features
-
-- Converts any valid email address to its duck.com alias
-- Copies the result to the clipboard automatically
-- Remembers your Personal Duck Address across sessions
-- Supports Enter key to convert quickly
-- Native UI, no browser required
-
-## Download
-
-Pre-built binaries are available on the [Releases](../../releases) page for:
-
-- **macOS** — universal binary (Apple Silicon + Intel), packaged as `.app`
-- **Linux** — x86_64 binary
-- **Windows** — x86_64 executable
-
-## Build from source
-
-Requires [Rust](https://rustup.rs/) 1.85+.
-
-```bash
-git clone https://github.com/draugvar/duckify.git
-cd duckify
-cargo build --release
-```
-
-The binary will be at `target/release/duckify` (or `duckify.exe` on Windows).
-
-## How the alias is built
+A minimal native desktop app that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias — instantly copied to your clipboard.
 
 ```
 user@example.com  →  user_at_example.com_yourname@duck.com
 ```
 
-Where `yourname` is the local part of your Personal Duck Address (e.g. `yourname@duck.com`).
+---
+
+## Install
+
+### macOS — Homebrew (recommended)
+
+```bash
+brew tap draugvar/duckify
+brew install --cask duckify
+```
+
+### All platforms — pre-built binaries
+
+Download the latest release from the [Releases](../../releases) page:
+
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon + Intel) | `duckify-macos-universal.tar.gz` |
+| Linux x86_64 | `duckify-linux-x86_64.tar.gz` |
+| Windows x86_64 | `duckify-windows-x86_64.zip` |
+
+### Build from source
+
+Requires [Rust](https://rustup.rs/) 1.85+.
+
+```bash
+git clone https://github.com/draugvar/Duckify.git
+cd Duckify
+cargo build --release
+```
+
+Binary: `target/release/duckify` (or `duckify.exe` on Windows).
+
+---
+
+## Features
+
+- Converts any valid email to its `duck.com` alias in one click
+- Copies the result to clipboard automatically
+- Remembers your Personal Duck Address across sessions
+- Press Enter to convert without reaching for the mouse
+- Native UI — no browser, no Electron, no runtime dependencies
+
+---
+
+## How it works
+
+DuckDuckGo Email Protection generates aliases in the form:
+
+```
+original_user_at_original_domain.com_yourname@duck.com
+```
+
+Duckify automates that transformation. Paste any email, hit **Convert**, and the alias is ready to paste anywhere.
+
+---
 
 ## License
 
