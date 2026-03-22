@@ -79,8 +79,9 @@ jobs:
         run: |
           mkdir -p "Duckify.app/Contents/MacOS"
           mkdir -p "Duckify.app/Contents/Resources"
-          cp target/release/duckify "Duckify.app/Contents/MacOS/"
-          cp Info.plist "Duckify.app/Contents/"
+          cp target/release/duckify        "Duckify.app/Contents/MacOS/"
+          cp assets/Info.plist             "Duckify.app/Contents/"
+          cp assets/icon.icns              "Duckify.app/Contents/Resources/"
           tar czf duckify-macos-universal.tar.gz "Duckify.app"
 
       # ── Linux ─────────────────────────────────────────────────────────────
