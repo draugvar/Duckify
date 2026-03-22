@@ -149,3 +149,18 @@ jobs:
             duckify-macos-universal.tar.gz
             duckify-linux-x86_64.tar.gz
             duckify-windows-x86_64.zip
+
+  # ── Delete artifacts ───────────────────────────────────────────────────────
+  cleanup:
+    name: Delete artifacts
+    needs: [release]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete run artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
+            --jq '.artifacts[].id' | \
+            xargs -I{} gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/{}
