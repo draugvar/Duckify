@@ -99,7 +99,7 @@ impl eframe::App for App {
                 ui.vertical_centered(|ui| {
                     ui.add_space(6.0);
                     ui.label(
-                        RichText::new("🦆  Duckify")
+                        RichText::new(">('.)>  Duckify")
                             .size(28.0)
                             .strong()
                             .color(ACCENT),
@@ -203,34 +203,36 @@ impl eframe::App for App {
                         );
                         ui.add_space(4.0);
                         ui.horizontal(|ui| {
-                            let mut display = self.result.clone();
-                            ui.add(
-                                egui::TextEdit::singleline(&mut display)
-                                    .desired_width(ui.available_width() - 62.0)
-                                    .interactive(false)
-                                    .font(FontId::proportional(13.0)),
-                            );
-                            if ui
-                                .add(
-                                    egui::Button::new(
-                                        RichText::new("Copy")
-                                            .color(Color32::from_rgb(20, 20, 20))
-                                            .strong()
-                                            .size(13.0),
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                if ui
+                                    .add(
+                                        egui::Button::new(
+                                            RichText::new("Copy")
+                                                .color(Color32::from_rgb(20, 20, 20))
+                                                .strong()
+                                                .size(13.0),
+                                        )
+                                        .fill(ACCENT)
+                                        .corner_radius(CornerRadius::same(6)),
                                     )
-                                    .fill(ACCENT)
-                                    .corner_radius(CornerRadius::same(6)),
-                                )
-                                .clicked()
-                            {
-                                ctx.copy_text(self.result.clone());
-                                self.copied = true;
-                            }
+                                    .clicked()
+                                {
+                                    ctx.copy_text(self.result.clone());
+                                    self.copied = true;
+                                }
+                                let mut display = self.result.clone();
+                                ui.add(
+                                    egui::TextEdit::singleline(&mut display)
+                                        .desired_width(f32::INFINITY)
+                                        .interactive(false)
+                                        .font(FontId::proportional(13.0)),
+                                );
+                            });
                         });
                         if self.copied {
                             ui.add_space(6.0);
                             ui.label(
-                                RichText::new("✓  Copied to clipboard!")
+                                RichText::new("Copied to clipboard!")
                                     .color(SUCCESS)
                                     .size(12.0),
                             );
@@ -241,11 +243,25 @@ impl eframe::App for App {
     }
 }
 
+fn make_icon() -> egui::IconData {
+    let png_bytes = include_bytes!("../assets/icon.png");
+    let decoder = png::Decoder::new(std::io::Cursor::new(png_bytes.as_ref()));
+    let mut reader = decoder.read_info().unwrap();
+    let mut buf = vec![0u8; reader.output_buffer_size()];
+    let info = reader.next_frame(&mut buf).unwrap();
+    egui::IconData {
+        rgba: buf[..info.buffer_size()].to_vec(),
+        width: info.width,
+        height: info.height,
+    }
+}
+
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Duckify")
-            .with_inner_size([460.0, 400.0])
+            .with_inner_size([460.0, 480.0])
+            .with_icon(make_icon())
             .with_resizable(false),
         ..Default::default()
     };
