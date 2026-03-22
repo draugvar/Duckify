@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Check if the version in Cargo.toml is new ──────────────────────────────
+  check-version:
+    name: Check version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from Cargo.toml
+        id: version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag v${{ steps.version.outputs.version }} already exists
+        id: check
+        run: |
+          if git tag | grep -qx "v${{ steps.version.outputs.version }}"; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "Tag already exists — skipping release"
+          else
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "New version — will build and release"
+          fi
+
+  # ── Build on all platforms ─────────────────────────────────────────────────
+  build:
+    name: Build — ${{ matrix.os }}
+    needs: check-version
+    if: needs.check-version.outputs.should_release == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            asset_name: duckify-macos-universal.tar.gz
+          - os: ubuntu-latest
+            asset_name: duckify-linux-x86_64.tar.gz
+          - os: windows-latest
+            asset_name: duckify-windows-x86_64.zip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # ── macOS: universal binary (Apple Silicon + Intel) ──────────────────
+      - name: Add macOS cross-compilation targets
+        if: matrix.os == 'macos-latest'
+        run: rustup target add x86_64-apple-darwin aarch64-apple-darwin
+
+      - name: Build (macOS universal)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cargo build --release --target x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          lipo -create -output target/release/duckify \
+            target/x86_64-apple-darwin/release/duckify \
+            target/aarch64-apple-darwin/release/duckify
+
+      - name: Package macOS .app
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p "Duckify.app/Contents/MacOS"
+          mkdir -p "Duckify.app/Contents/Resources"
+          cp target/release/duckify "Duckify.app/Contents/MacOS/"
+          cp Info.plist "Duckify.app/Contents/"
+          tar czf duckify-macos-universal.tar.gz "Duckify.app"
+
+      # ── Linux ─────────────────────────────────────────────────────────────
+      - name: Install Linux system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libwayland-dev \
+            libegl1-mesa-dev \
+            pkg-config \
+            libssl-dev
+
+      - name: Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo build --release
+
+      - name: Package Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: tar czf duckify-linux-x86_64.tar.gz -C target/release duckify
+
+      # ── Windows ───────────────────────────────────────────────────────────
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: cargo build --release
+
+      - name: Package Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: Compress-Archive -Path target/release/duckify.exe -DestinationPath duckify-windows-x86_64.zip
+
+      # ── Upload artifact for release job ───────────────────────────────────
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}
+
+  # ── Create GitHub Release ──────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: [check-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create tag v${{ needs.check-version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ needs.check-version.outputs.version }}"
+          git push origin "v${{ needs.check-version.outputs.version }}"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            duckify-macos-universal.tar.gz
+            duckify-linux-x86_64.tar.gz
+            duckify-windows-x86_64.zip
