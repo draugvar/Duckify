@@ -2,6 +2,11 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.6] - 2026-03-23
+
+### Changed
+- License changed from MIT to GPL-3.0-or-later — all redistributions and derivative works must remain open source
+
 ## [1.1.5] - 2026-03-22
 
 ### Changed
