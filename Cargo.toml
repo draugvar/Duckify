@@ -1,7 +1,8 @@
 [package]
 name = "duckify"
-version = "1.1.5"
+version = "1.1.6"
 edition = "2024"
+license = "GPL-3.0-or-later"
 
 [dependencies]
 eframe = { version = "0.33.3", features = ["persistence"] }
