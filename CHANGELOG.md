@@ -2,6 +2,13 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.8] - 2026-03-29
+
+### Fixed
+- Release workflow CI failure: removed the non-existent `actions/delete-artifact` action (caused "repository not found" and exit code 123)
+- Added `actions: write` to the workflow-level `permissions` block — without it the `GITHUB_TOKEN` was silently capped, causing HTTP 403 on every artifact deletion attempt
+- Cleanup job now uses [`geekyeggo/delete-artifact@v6`](https://github.com/GeekyEggo/delete-artifact) (the standard community action for this) with `failOnError: false` so the workflow never breaks if an artifact is already gone
+
 ## [1.1.7] - 2026-03-29
 
 ### Fixed

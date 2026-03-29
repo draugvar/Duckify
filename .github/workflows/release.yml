@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   # ── Check if the version in Cargo.toml is new ──────────────────────────────
@@ -117,11 +118,12 @@ jobs:
         shell: pwsh
         run: Compress-Archive -Path target/release/duckify.exe -DestinationPath duckify-windows-x86_64.zip
 
-      # ── Upload artifact for release job ───────────────────────────────────
+      # ── Upload artifact for release job (auto-expires after 1 day) ──────
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
           path: ${{ matrix.asset_name }}
+          retention-days: 1
 
   # ── Create GitHub Release ──────────────────────────────────────────────────
   release:
@@ -213,21 +215,12 @@ jobs:
     needs: [release, update-tap]
     if: always()
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
     steps:
-      - name: Delete macOS artifact
-        uses: actions/delete-artifact@v4
+      - name: Delete build artifacts
+        uses: geekyeggo/delete-artifact@v6
         with:
-          name: duckify-macos-universal.tar.gz
-
-      - name: Delete Linux artifact
-        uses: actions/delete-artifact@v4
-        with:
-          name: duckify-linux-x86_64.tar.gz
-
-      - name: Delete Windows artifact
-        uses: actions/delete-artifact@v4
-        with:
-          name: duckify-windows-x86_64.zip
+          name: |
+            duckify-macos-universal.tar.gz
+            duckify-linux-x86_64.tar.gz
+            duckify-windows-x86_64.zip
+          failOnError: false
