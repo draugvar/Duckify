@@ -1,8 +1,16 @@
-# Duckify
+<p align="center">
+  <img src="assets/icon.png" width="96" alt="Duckify icon" />
+</p>
 
-A minimal native desktop app that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias — instantly copied to your clipboard.
+<h1 align="center">Duckify</h1>
 
-<img src="assets/screenshot.png" width="445" alt="Duckify screenshot" />
+<p align="center">
+  A minimal native desktop app that converts any email address into a <a href="https://duckduckgo.com/email/">DuckDuckGo Email Protection</a> alias — instantly copied to your clipboard.
+</p>
+
+<p align="center">
+  <img src="assets/screenshot.png" width="445" alt="Duckify screenshot" />
+</p>
 
 ```
 user@example.com  →  user_at_example.com_yourname@duck.com

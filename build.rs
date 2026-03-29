@@ -7,9 +7,7 @@ fn main() {
 
     fs::create_dir_all("assets").expect("failed to create assets dir");
 
-    let (mut rgba, src_w, src_h) = load_png("assets/icon_source.png");
-    recolor(&mut rgba);
-    fill_interior(&mut rgba, src_w, src_h);
+    let (rgba, src_w, _src_h) = load_png("assets/icon_source.png");
 
     // 256x256 base icon used at runtime and on Linux
     let icon_256 = scale(&rgba, src_w, 256);
@@ -24,81 +22,6 @@ fn main() {
         let mut res = winres::WindowsResource::new();
         res.set_icon("assets/icon.ico");
         res.compile().expect("failed to compile Windows resources");
-    }
-}
-
-// ── Recolor ──────────────────────────────────────────────────────────────────
-
-/// - Transparent pixels          → stay transparent
-/// - Yellow/orange (duck body)   → app accent #FFD500
-/// - Dark/black (outlines)       → stay black
-/// - Everything else (envelope interior, light fill) → white
-fn recolor(rgba: &mut [u8]) {
-    for px in rgba.chunks_mut(4) {
-        let (r, g, b, a) = (px[0], px[1], px[2], px[3]);
-        if a < 128 {
-            px[0] = 0; px[1] = 0; px[2] = 0; px[3] = 0;
-        } else if r > 160 && g > 100 && b < 80 && r > b + 100 {
-            // Duck body / beak → yellow
-            px[0] = 255; px[1] = 213; px[2] = 0; px[3] = 255;
-        } else if r < 80 && g < 80 && b < 80 {
-            // Envelope outlines → black
-            px[0] = 0; px[1] = 0; px[2] = 0; px[3] = 255;
-        } else {
-            // Envelope interior → white
-            px[0] = 255; px[1] = 255; px[2] = 255; px[3] = 255;
-        }
-    }
-}
-
-// ── Interior flood-fill ───────────────────────────────────────────────────────
-
-/// BFS flood-fill from every edge pixel: transparent pixels reachable from the
-/// border are "outside background" and stay transparent.  Any transparent pixel
-/// that is NOT reachable (enclosed by opaque outlines) is the envelope interior
-/// and gets filled white.
-fn fill_interior(rgba: &mut [u8], w: u32, h: u32) {
-    let (w, h) = (w as usize, h as usize);
-    let mut outside = vec![false; w * h];
-    let mut queue: std::collections::VecDeque<(usize, usize)> = Default::default();
-
-    // Seed: all transparent pixels on the image border
-    for y in 0..h {
-        for x in 0..w {
-            if y == 0 || y == h - 1 || x == 0 || x == w - 1 {
-                let idx = y * w + x;
-                if rgba[idx * 4 + 3] < 128 {
-                    outside[idx] = true;
-                    queue.push_back((x, y));
-                }
-            }
-        }
-    }
-
-    // BFS: expand through transparent neighbours
-    while let Some((x, y)) = queue.pop_front() {
-        for (dx, dy) in [(!0usize, 0usize), (1, 0), (0, !0), (0, 1)] {
-            let nx = x.wrapping_add(dx);
-            let ny = y.wrapping_add(dy);
-            if nx < w && ny < h {
-                let idx = ny * w + nx;
-                if !outside[idx] && rgba[idx * 4 + 3] < 128 {
-                    outside[idx] = true;
-                    queue.push_back((nx, ny));
-                }
-            }
-        }
-    }
-
-    // Any transparent pixel not reached = inside envelope → white
-    for idx in 0..w * h {
-        if !outside[idx] && rgba[idx * 4 + 3] < 128 {
-            let i = idx * 4;
-            rgba[i]     = 255;
-            rgba[i + 1] = 255;
-            rgba[i + 2] = 255;
-            rgba[i + 3] = 255;
-        }
     }
 }
 

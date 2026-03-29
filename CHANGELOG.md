@@ -2,6 +2,14 @@
 
 All notable changes to Duckify will be documented in this file.
 
+## [1.1.7] - 2026-03-29
+
+### Fixed
+- Release workflow artifact cleanup
+
+### Changed
+- README header now shows the app icon for a nicer look on the GitHub page
+
 ## [1.1.6] - 2026-03-23
 
 ### Changed

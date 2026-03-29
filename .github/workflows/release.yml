@@ -217,28 +217,17 @@ jobs:
       actions: write
       contents: read
     steps:
-      - name: Delete run artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ARTIFACT_IDS=$(gh api --paginate repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[]?.id')
+      - name: Delete macOS artifact
+        uses: actions/delete-artifact@v4
+        with:
+          name: duckify-macos-universal.tar.gz
 
-          if [ -z "$ARTIFACT_IDS" ]; then
-            echo "No artifacts found for this run"
-            exit 0
-          fi
+      - name: Delete Linux artifact
+        uses: actions/delete-artifact@v4
+        with:
+          name: duckify-linux-x86_64.tar.gz
 
-          FAILED=0
-          while IFS= read -r ARTIFACT_ID; do
-            [ -z "$ARTIFACT_ID" ] && continue
-            if ! gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/${ARTIFACT_ID}; then
-              echo "::warning::Failed to delete artifact ${ARTIFACT_ID}"
-              FAILED=1
-            fi
-          done <<< "$ARTIFACT_IDS"
-
-          if [ "$FAILED" -eq 1 ]; then
-            echo "Cleanup completed with warnings"
-          else
-            echo "All artifacts deleted"
-          fi
+      - name: Delete Windows artifact
+        uses: actions/delete-artifact@v4
+        with:
+          name: duckify-windows-x86_64.zip
