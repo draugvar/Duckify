@@ -2,6 +2,14 @@
 
 All notable changes to Quackify will be documented in this file.
 
+## [1.2.0] - 2026-05-11
+
+### Changed
+- Homebrew tap migrated to `draugvar/homebrew-quackify` — install with `brew tap draugvar/quackify && brew install --cask quackify`
+
+### Fixed
+- CI Homebrew tap update step now targets renamed `homebrew-quackify` repo
+
 ## [1.1.9] - 2026-05-11
 
 ### Changed
