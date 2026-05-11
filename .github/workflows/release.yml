@@ -50,11 +50,11 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            asset_name: duckify-macos-universal.tar.gz
+            asset_name: quackify-macos-universal.tar.gz
           - os: ubuntu-latest
-            asset_name: duckify-linux-x86_64.tar.gz
+            asset_name: quackify-linux-x86_64.tar.gz
           - os: windows-latest
-            asset_name: duckify-windows-x86_64.zip
+            asset_name: quackify-windows-x86_64.zip
 
     steps:
       - uses: actions/checkout@v4
@@ -71,19 +71,19 @@ jobs:
         run: |
           cargo build --release --target x86_64-apple-darwin
           cargo build --release --target aarch64-apple-darwin
-          lipo -create -output target/release/duckify \
-            target/x86_64-apple-darwin/release/duckify \
-            target/aarch64-apple-darwin/release/duckify
+          lipo -create -output target/release/quackify \
+            target/x86_64-apple-darwin/release/quackify \
+            target/aarch64-apple-darwin/release/quackify
 
       - name: Package macOS .app
         if: matrix.os == 'macos-latest'
         run: |
-          mkdir -p "Duckify.app/Contents/MacOS"
-          mkdir -p "Duckify.app/Contents/Resources"
-          cp target/release/duckify        "Duckify.app/Contents/MacOS/"
-          cp assets/Info.plist             "Duckify.app/Contents/"
-          cp assets/icon.icns              "Duckify.app/Contents/Resources/"
-          tar czf duckify-macos-universal.tar.gz "Duckify.app"
+          mkdir -p "Quackify.app/Contents/MacOS"
+          mkdir -p "Quackify.app/Contents/Resources"
+          cp target/release/quackify        "Quackify.app/Contents/MacOS/"
+          cp assets/Info.plist              "Quackify.app/Contents/"
+          cp assets/icon.icns               "Quackify.app/Contents/Resources/"
+          tar czf quackify-macos-universal.tar.gz "Quackify.app"
 
       # ── Linux ─────────────────────────────────────────────────────────────
       - name: Install Linux system dependencies
@@ -106,7 +106,7 @@ jobs:
 
       - name: Package Linux
         if: matrix.os == 'ubuntu-latest'
-        run: tar czf duckify-linux-x86_64.tar.gz -C target/release duckify
+        run: tar czf quackify-linux-x86_64.tar.gz -C target/release quackify
 
       # ── Windows ───────────────────────────────────────────────────────────
       - name: Build (Windows)
@@ -116,7 +116,7 @@ jobs:
       - name: Package Windows
         if: matrix.os == 'windows-latest'
         shell: pwsh
-        run: Compress-Archive -Path target/release/duckify.exe -DestinationPath duckify-windows-x86_64.zip
+        run: Compress-Archive -Path target/release/quackify.exe -DestinationPath quackify-windows-x86_64.zip
 
       # ── Upload artifact for release job (auto-expires after 1 day) ──────
       - uses: actions/upload-artifact@v4
@@ -149,9 +149,9 @@ jobs:
           tag_name: v${{ needs.check-version.outputs.version }}
           generate_release_notes: true
           files: |
-            duckify-macos-universal.tar.gz
-            duckify-linux-x86_64.tar.gz
-            duckify-windows-x86_64.zip
+            quackify-macos-universal.tar.gz
+            quackify-linux-x86_64.tar.gz
+            quackify-windows-x86_64.zip
 
   # ── Update Homebrew Tap ────────────────────────────────────────────────────
   update-tap:
@@ -165,12 +165,12 @@ jobs:
         run: |
           gh release download "v${{ needs.check-version.outputs.version }}" \
             --repo draugvar/Duckify \
-            --pattern "duckify-macos-universal.tar.gz"
+            --pattern "quackify-macos-universal.tar.gz"
 
       - name: Compute SHA256
         id: sha256
         run: |
-          SHA256=$(shasum -a 256 duckify-macos-universal.tar.gz | awk '{print $1}')
+          SHA256=$(shasum -a 256 quackify-macos-universal.tar.gz | awk '{print $1}')
           echo "value=$SHA256" >> $GITHUB_OUTPUT
 
       - name: Update tap formula
@@ -179,34 +179,34 @@ jobs:
           VERSION: ${{ needs.check-version.outputs.version }}
           SHA256: ${{ steps.sha256.outputs.value }}
         run: |
-          git clone "https://x-access-token:${TAP_TOKEN}@github.com/draugvar/homebrew-duckify.git" tap
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/draugvar/homebrew-quackify.git" tap
           mkdir -p tap/Casks
 
           {
-            echo 'cask "duckify" do'
+            echo 'cask "quackify" do'
             echo "  version \"${VERSION}\""
             echo "  sha256 \"${SHA256}\""
             echo ''
-            echo '  url "https://github.com/draugvar/Duckify/releases/download/v#{version}/duckify-macos-universal.tar.gz"'
+            echo '  url "https://github.com/draugvar/Duckify/releases/download/v#{version}/quackify-macos-universal.tar.gz"'
             echo ''
-            echo '  name "Duckify"'
-            echo '  desc "DuckDuckGo-powered browser in a native macOS wrapper"'
+            echo '  name "Quackify"'
+            echo '  desc "DuckDuckGo Email Converter"'
             echo '  homepage "https://github.com/draugvar/Duckify"'
             echo ''
-            echo '  app "Duckify.app"'
+            echo '  app "Quackify.app"'
             echo ''
             echo '  zap trash: ['
-            echo '    "~/Library/Application Support/duckify",'
-            echo '    "~/Library/Preferences/duckify.plist",'
+            echo '    "~/Library/Application Support/Quackify",'
+            echo '    "~/Library/Preferences/com.draugvar.quackify.plist",'
             echo '  ]'
             echo 'end'
-          } > tap/Casks/duckify.rb
+          } > tap/Casks/quackify.rb
 
           cd tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Casks/duckify.rb
-          git diff --cached --quiet || git commit -m "Update duckify to v${VERSION}"
+          git add Casks/quackify.rb
+          git diff --cached --quiet || git commit -m "Update quackify to v${VERSION}"
           git push
 
   # ── Delete artifacts ───────────────────────────────────────────────────────
@@ -220,7 +220,7 @@ jobs:
         uses: geekyeggo/delete-artifact@v6
         with:
           name: |
-            duckify-macos-universal.tar.gz
-            duckify-linux-x86_64.tar.gz
-            duckify-windows-x86_64.zip
+            quackify-macos-universal.tar.gz
+            quackify-linux-x86_64.tar.gz
+            quackify-windows-x86_64.zip
           failOnError: false

@@ -1,19 +1,19 @@
 <p align="center">
-  <img src="assets/icon.png" width="96" alt="Duckify icon" />
+  <img src="assets/icon.png" width="96" alt="Quackify icon" />
 </p>
 
-<h1 align="center">Duckify</h1>
+<h1 align="center">Quackify</h1>
 
 <p align="center">
   A minimal native desktop app that converts any email address into a <a href="https://duckduckgo.com/email/">DuckDuckGo Email Protection</a> alias — instantly copied to your clipboard.
 </p>
 
 <p align="center">
-  <img src="assets/screenshot.png" width="445" alt="Duckify screenshot" />
+  <img src="assets/screenshot.png" width="445" alt="Quackify screenshot" />
 </p>
 
 ```
-user@example.com  →  user_at_example.com_yourname@duck.com
+user.name@example.com  →  user_name_at_example_com_yourname@duck.com
 ```
 
 ---
@@ -23,8 +23,8 @@ user@example.com  →  user_at_example.com_yourname@duck.com
 ### macOS — Homebrew (recommended)
 
 ```bash
-brew tap draugvar/duckify
-brew install --cask duckify
+brew tap draugvar/quackify
+brew install --cask quackify
 ```
 
 ### All platforms — pre-built binaries
@@ -33,9 +33,9 @@ Download the latest release from the [Releases](../../releases) page:
 
 | Platform | File |
 |----------|------|
-| macOS (Apple Silicon + Intel) | `duckify-macos-universal.tar.gz` |
-| Linux x86_64 | `duckify-linux-x86_64.tar.gz` |
-| Windows x86_64 | `duckify-windows-x86_64.zip` |
+| macOS (Apple Silicon + Intel) | `quackify-macos-universal.tar.gz` |
+| Linux x86_64 | `quackify-linux-x86_64.tar.gz` |
+| Windows x86_64 | `quackify-windows-x86_64.zip` |
 
 ### Build from source
 
@@ -47,7 +47,7 @@ cd Duckify
 cargo build --release
 ```
 
-Binary: `target/release/duckify` (or `duckify.exe` on Windows).
+Binary: `target/release/quackify` (or `quackify.exe` on Windows).
 
 ---
 
@@ -69,7 +69,7 @@ DuckDuckGo Email Protection generates aliases in the form:
 original_user_at_original_domain.com_yourname@duck.com
 ```
 
-Duckify automates that transformation. Paste any email, hit **Convert**, and the alias is ready to paste anywhere.
+Quackify automates that transformation. Paste any email, hit **Convert**, and the alias is ready to paste anywhere.
 
 ---
 

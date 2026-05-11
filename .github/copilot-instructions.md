@@ -1,8 +1,8 @@
-# Copilot Instructions for Duckify
+# Copilot Instructions for Quackify
 
 ## Project Overview
 
-Duckify is a minimal native desktop application written in Rust that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias. The alias format is:
+Quackify is a minimal native desktop application written in Rust that converts any email address into a [DuckDuckGo Email Protection](https://duckduckgo.com/email/) alias. The alias format is:
 
 ```
 original_user_at_original_domain.com_yourname@duck.com
@@ -62,6 +62,6 @@ Releases are triggered automatically by the `release.yml` workflow when a commit
 1. Detects if the version tag already exists.
 2. Builds universal macOS, Linux x86\_64, and Windows x86\_64 binaries.
 3. Creates a GitHub Release with generated release notes.
-4. Updates the Homebrew tap at `draugvar/homebrew-duckify`.
+4. Updates the Homebrew tap at `draugvar/homebrew-quackify`.
 
 To cut a new release, bump the `version` field in `Cargo.toml` and push to `main`.

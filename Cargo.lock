@@ -791,15 +791,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 
 [[package]]
-name = "duckify"
-version = "1.1.8"
-dependencies = [
- "eframe",
- "png 0.17.16",
- "winres",
-]
-
-[[package]]
 name = "ecolor"
 version = "0.33.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2448,6 +2439,15 @@ name = "pxfm"
 version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5a041e753da8b807c9255f28de81879c78c876392ff2469cde94799b2896b9d"
+
+[[package]]
+name = "quackify"
+version = "1.1.9"
+dependencies = [
+ "eframe",
+ "png 0.17.16",
+ "winres",
+]
 
 [[package]]
 name = "quick-error"

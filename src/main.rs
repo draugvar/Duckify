@@ -1,4 +1,4 @@
-use eframe::egui::{self, Color32, CornerRadius, FontId, Margin, RichText, Vec2};
+use eframe::egui::{self, Color32, ColorImage, CornerRadius, FontId, Margin, RichText, Vec2};
 
 const STORAGE_KEY: &str = "duck_address";
 
@@ -9,6 +9,7 @@ const SURFACE2: Color32 = Color32::from_rgb(38, 38, 58);
 const ACCENT: Color32 = Color32::from_rgb(255, 213, 0);
 const TEXT_DIM: Color32 = Color32::from_rgb(120, 120, 155);
 const SUCCESS: Color32 = Color32::from_rgb(80, 200, 120);
+const ON_ACCENT: Color32 = Color32::from_rgb(20, 20, 20);
 
 fn is_valid_email(email: &str) -> bool {
     let Some((user, domain)) = email.split_once('@') else {
@@ -22,21 +23,47 @@ fn is_valid_email(email: &str) -> bool {
 }
 
 fn convert_to_duck_email(email: &str, duck_address: &str) -> String {
-    let (user, domain) = email.split_once('@').unwrap();
-    let duck_user = duck_address.split('@').next().unwrap();
-    format!("{}_at_{}_{duck_user}@duck.com", user, domain)
+    let local_part = duck_address.split('@').next().unwrap_or(duck_address);
+    let sanitized = email.replace('@', "_at_").replace('.', "_");
+    format!("{sanitized}_{local_part}@duck.com")
+}
+
+fn load_icon_texture(ctx: &egui::Context) -> egui::TextureHandle {
+    let png_bytes = include_bytes!("../assets/icon.png");
+    let decoder = png::Decoder::new(std::io::Cursor::new(png_bytes.as_ref()));
+    let mut reader = decoder.read_info().unwrap();
+    let mut buf = vec![0u8; reader.output_buffer_size()];
+    let info = reader.next_frame(&mut buf).unwrap();
+
+    let size = [info.width as usize, info.height as usize];
+    let pixels = match info.color_type {
+        png::ColorType::Rgba => buf[..info.buffer_size()].to_vec(),
+        png::ColorType::Rgb => {
+            let mut rgba = Vec::with_capacity(size[0] * size[1] * 4);
+            for chunk in buf[..info.buffer_size()].chunks(3) {
+                rgba.extend_from_slice(&[chunk[0], chunk[1], chunk[2], 255]);
+            }
+            rgba
+        }
+        _ => buf[..info.buffer_size()].to_vec(),
+    };
+
+    let color_image = ColorImage::from_rgba_unmultiplied(size, &pixels);
+    ctx.load_texture("app_icon", color_image, Default::default())
 }
 
 struct App {
     email: String,
     duck_address: String,
     result: String,
-    copied: bool,
+    copied_since: Option<f64>,
+    icon: Option<egui::TextureHandle>,
 }
 
 impl App {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         Self::setup_style(&cc.egui_ctx);
+        let icon = load_icon_texture(&cc.egui_ctx);
         let duck_address = cc
             .storage
             .and_then(|s| s.get_string(STORAGE_KEY))
@@ -45,7 +72,8 @@ impl App {
             email: String::new(),
             duck_address,
             result: String::new(),
-            copied: false,
+            copied_since: None,
+            icon: Some(icon),
         }
     }
 
@@ -88,6 +116,15 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // Reset copy feedback after 2 seconds
+        if let Some(copied_at) = self.copied_since {
+            if ctx.input(|i| i.time) - copied_at > 2.0 {
+                self.copied_since = None;
+            }
+        }
+
+        let copied = self.copied_since.is_some();
+
         egui::CentralPanel::default()
             .frame(
                 egui::Frame::new()
@@ -98,15 +135,32 @@ impl eframe::App for App {
                 // ── Header ────────────────────────────────────────────────
                 ui.vertical_centered(|ui| {
                     ui.add_space(6.0);
-                    ui.label(
-                        RichText::new(">('.)>  Duckify")
-                            .size(28.0)
-                            .strong()
-                            .color(ACCENT),
+                    ui.allocate_ui_with_layout(
+                        Vec2::new(ui.available_width(), 44.0),
+                        egui::Layout::left_to_right(egui::Align::Center)
+                            .with_cross_align(egui::Align::Center),
+                        |ui| {
+                            if let Some(icon) = &self.icon {
+                                ui.add(
+                                    egui::Image::from_texture(
+                                        egui::load::SizedTexture::from_handle(icon),
+                                    )
+                                    .max_width(44.0)
+                                    .max_height(44.0),
+                                );
+                                ui.add_space(10.0);
+                            }
+                            ui.label(
+                                RichText::new("Quackify")
+                                    .size(28.0)
+                                    .strong()
+                                    .color(ACCENT),
+                            );
+                        },
                     );
                     ui.add_space(2.0);
                     ui.label(
-                        RichText::new("Convert any email to a duck.com alias")
+                        RichText::new("DuckDuckGo Email Converter")
                             .size(12.0)
                             .color(TEXT_DIM),
                     );
@@ -119,7 +173,7 @@ impl eframe::App for App {
                     Self::card_frame()
                         .show(ui, |ui| {
                             ui.label(
-                                RichText::new("EMAIL TO CONVERT")
+                                RichText::new("EMAIL TO MASK")
                                     .size(10.0)
                                     .color(TEXT_DIM)
                                     .strong(),
@@ -135,7 +189,7 @@ impl eframe::App for App {
                             ui.add_space(12.0);
 
                             ui.label(
-                                RichText::new("PERSONAL DUCK ADDRESS")
+                                RichText::new("YOUR DUCK ADDRESS")
                                     .size(10.0)
                                     .color(TEXT_DIM)
                                     .strong(),
@@ -161,7 +215,7 @@ impl eframe::App for App {
                                             RichText::new("Convert")
                                                 .size(14.0)
                                                 .color(if can {
-                                                    Color32::from_rgb(20, 20, 20)
+                                                    ON_ACCENT
                                                 } else {
                                                     TEXT_DIM
                                                 })
@@ -188,55 +242,53 @@ impl eframe::App for App {
                         storage.flush();
                     }
                     self.result = convert_to_duck_email(&self.email, &self.duck_address);
-                    self.copied = false;
+                    self.copied_since = None;
                 }
 
                 // ── Result card ───────────────────────────────────────────
                 if !self.result.is_empty() {
                     ui.add_space(12.0);
                     Self::card_frame().show(ui, |ui| {
-                        ui.label(
-                            RichText::new("RESULT")
-                                .size(10.0)
-                                .color(TEXT_DIM)
-                                .strong(),
-                        );
-                        ui.add_space(4.0);
-                        ui.horizontal(|ui| {
-                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                                if ui
-                                    .add(
-                                        egui::Button::new(
-                                            RichText::new("Copy")
-                                                .color(Color32::from_rgb(20, 20, 20))
-                                                .strong()
-                                                .size(13.0),
-                                        )
-                                        .fill(ACCENT)
-                                        .corner_radius(CornerRadius::same(6)),
-                                    )
-                                    .clicked()
-                                {
-                                    ctx.copy_text(self.result.clone());
-                                    self.copied = true;
-                                }
-                                let mut display = self.result.clone();
-                                ui.add(
-                                    egui::TextEdit::singleline(&mut display)
-                                        .desired_width(f32::INFINITY)
-                                        .interactive(false)
-                                        .font(FontId::proportional(13.0)),
-                                );
-                            });
-                        });
-                        if self.copied {
-                            ui.add_space(6.0);
+                        ui.vertical_centered(|ui| {
                             ui.label(
-                                RichText::new("Copied to clipboard!")
-                                    .color(SUCCESS)
-                                    .size(12.0),
+                                RichText::new("MASKED ALIAS")
+                                    .size(10.0)
+                                    .color(TEXT_DIM)
+                                    .strong(),
                             );
-                        }
+                            ui.add_space(8.0);
+                            ui.label(
+                                RichText::new(&self.result)
+                                    .font(FontId::monospace(13.0))
+                                    .color(ACCENT),
+                            );
+                            ui.add_space(10.0);
+
+                            let copy_clicked = ui
+                                .add(
+                                    egui::Button::new(
+                                        RichText::new(if copied {
+                                            "✓  Copied!"
+                                        } else {
+                                            "Copy"
+                                        })
+                                        .color(if copied { SUCCESS } else { ON_ACCENT })
+                                        .strong()
+                                        .size(13.0),
+                                    )
+                                    .fill(if copied { SURFACE } else { ACCENT })
+                                    .corner_radius(CornerRadius::same(6))
+                                    .min_size(Vec2::new(140.0, 36.0)),
+                                )
+                                .clicked();
+
+                            if copy_clicked {
+                                ctx.copy_text(self.result.clone());
+                                self.copied_since = Some(ctx.input(|i| i.time));
+                            }
+                        });
+                        // Force card to fill available width
+                        ui.allocate_space(Vec2::new(ui.available_width(), 0.0));
                     });
                 }
             });
@@ -259,14 +311,14 @@ fn make_icon() -> egui::IconData {
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_title("Duckify")
+            .with_title("Quackify")
             .with_inner_size([460.0, 480.0])
             .with_icon(make_icon())
             .with_resizable(false),
         ..Default::default()
     };
     eframe::run_native(
-        "Duckify",
+        "Quackify",
         options,
         Box::new(|cc| Ok(Box::new(App::new(cc)))),
     )

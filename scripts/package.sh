@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# package.sh  –  Build Duckify.app + Duckify-<version>.dmg
+# package.sh  –  Build Quackify.app + Quackify-<version>.dmg
 #
 # Usage:
 #   ./scripts/package.sh              # builds and packages
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-APP_NAME="Duckify"
+APP_NAME="Quackify"
 BUNDLE="${APP_NAME}.app"
 DMG="${APP_NAME}-${VERSION}.dmg"
 SIGN=false
@@ -23,7 +23,7 @@ for arg in "$@"; do
   [[ "$arg" == "--sign" ]] && SIGN=true
 done
 
-echo "▶ Building Duckify v${VERSION}..."
+echo "▶ Building Quackify v${VERSION}..."
 cargo build --release
 
 echo "▶ Assembling ${BUNDLE}..."
@@ -31,11 +31,11 @@ rm -rf "${BUNDLE}"
 mkdir -p "${BUNDLE}/Contents/MacOS"
 mkdir -p "${BUNDLE}/Contents/Resources"
 
-cp target/release/duckify          "${BUNDLE}/Contents/MacOS/duckify"
-cp assets/Info.plist               "${BUNDLE}/Contents/Info.plist"
-cp assets/icon.icns                "${BUNDLE}/Contents/Resources/icon.icns"
+cp target/release/quackify          "${BUNDLE}/Contents/MacOS/quackify"
+cp assets/Info.plist                "${BUNDLE}/Contents/Info.plist"
+cp assets/icon.icns                 "${BUNDLE}/Contents/Resources/icon.icns"
 
-chmod +x "${BUNDLE}/Contents/MacOS/duckify"
+chmod +x "${BUNDLE}/Contents/MacOS/quackify"
 
 # ── Code signing ──────────────────────────────────────────────────────────────
 if [[ "${SIGN}" == true ]]; then

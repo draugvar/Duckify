@@ -1,6 +1,21 @@
 # Changelog
 
-All notable changes to Duckify will be documented in this file.
+All notable changes to Quackify will be documented in this file.
+
+## [1.1.9] - 2026-05-11
+
+### Changed
+- **Renamed app from Duckify to Quackify** — matches the iOS app name for consistency across platforms
+- Conversion logic now replaces dots with underscores (e.g. `user.name@example.com` → `user_name_at_example_com_xxx@duck.com`), matching iOS Quackify behavior
+- Header subtitle changed to "DuckDuckGo Email Converter"
+- Input labels updated: "EMAIL TO MASK" and "YOUR DUCK ADDRESS"
+- Result label updated: "MASKED ALIAS"
+- Copy button now shows "✓  Copied!" with green text and auto-resets after 2 seconds
+
+### Internal
+- Package/binary renamed from `duckify` to `quackify` in Cargo.toml
+- Bundle identifier changed to `com.draugvar.quackify`
+- Homebrew tap formula and CI workflow updated for new name
 
 ## [1.1.8] - 2026-03-29
 
