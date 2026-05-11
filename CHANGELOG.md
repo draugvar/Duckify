@@ -11,6 +11,10 @@ All notable changes to Quackify will be documented in this file.
 - Input labels updated: "EMAIL TO MASK" and "YOUR DUCK ADDRESS"
 - Result label updated: "MASKED ALIAS"
 - Copy button now shows "✓  Copied!" with green text and auto-resets after 2 seconds
+- App icon displayed in header next to title, pixel-perfect centered via text measurement
+
+### Added
+- CLAUDE.md with project architecture, egui quirks, and release process documentation
 
 ### Internal
 - Package/binary renamed from `duckify` to `quackify` in Cargo.toml
