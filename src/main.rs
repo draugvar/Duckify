@@ -135,29 +135,38 @@ impl eframe::App for App {
                 // ── Header ────────────────────────────────────────────────
                 ui.vertical_centered(|ui| {
                     ui.add_space(6.0);
-                    ui.allocate_ui_with_layout(
-                        Vec2::new(ui.available_width(), 44.0),
-                        egui::Layout::left_to_right(egui::Align::Center)
-                            .with_cross_align(egui::Align::Center),
-                        |ui| {
-                            if let Some(icon) = &self.icon {
-                                ui.add(
-                                    egui::Image::from_texture(
-                                        egui::load::SizedTexture::from_handle(icon),
-                                    )
-                                    .max_width(44.0)
-                                    .max_height(44.0),
-                                );
-                                ui.add_space(10.0);
-                            }
-                            ui.label(
-                                RichText::new("Quackify")
-                                    .size(28.0)
-                                    .strong()
-                                    .color(ACCENT),
+                    let text_width = ctx.fonts_mut(|f| {
+                        f.layout_no_wrap(
+                            "Quackify".into(),
+                            FontId::proportional(28.0),
+                            ACCENT,
+                        )
+                        .rect
+                        .width()
+                    });
+                    let icon_w = if self.icon.is_some() { 44.0 + 10.0 } else { 0.0 };
+                    let total_w = icon_w + text_width;
+                    let offset = ((ui.available_width() - total_w) / 2.0).max(0.0);
+
+                    ui.horizontal(|ui| {
+                        ui.add_space(offset);
+                        if let Some(icon) = &self.icon {
+                            ui.add(
+                                egui::Image::from_texture(
+                                    egui::load::SizedTexture::from_handle(icon),
+                                )
+                                .max_width(44.0)
+                                .max_height(44.0),
                             );
-                        },
-                    );
+                            ui.add_space(10.0);
+                        }
+                        ui.label(
+                            RichText::new("Quackify")
+                                .size(28.0)
+                                .strong()
+                                .color(ACCENT),
+                        );
+                    });
                     ui.add_space(2.0);
                     ui.label(
                         RichText::new("DuckDuckGo Email Converter")
