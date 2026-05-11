@@ -2442,7 +2442,7 @@ checksum = "b5a041e753da8b807c9255f28de81879c78c876392ff2469cde94799b2896b9d"
 
 [[package]]
 name = "quackify"
-version = "1.1.9"
+version = "1.2.0"
 dependencies = [
  "eframe",
  "png 0.17.16",
