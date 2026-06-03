@@ -16,7 +16,7 @@ No test suite exists yet. `is_valid_email` and `convert_to_duck_email` in `src/m
 
 ## Architecture
 
-Single-file Rust app (`src/main.rs`, ~335 lines). Converts emails to DuckDuckGo Email Protection aliases (`user@example.com` → `user_at_example_com_yourname@duck.com`).
+Single-file Rust app (`src/main.rs`, ~335 lines). Converts emails to DuckDuckGo Email Protection aliases (`user@example.com` → `user_at_example.com_yourname@duck.com`).
 
 - **GUI**: egui 0.33 immediate-mode via eframe, with `persistence` feature for saving the user's Duck address
 - **Icons**: `build.rs` generates `icon.png` (256px), `icon.icns` (macOS), `icon.ico` (Windows) from `assets/icon_source.png` using box-filter scaling and PNG embedding
@@ -32,15 +32,17 @@ Single-file Rust app (`src/main.rs`, ~335 lines). Converts emails to DuckDuckGo 
 
 ### Conversion logic
 
-Matches iOS Quackify: replaces `@` with `_at_` and `.` with `_`, then appends `_localPart@duck.com`.
+Per DuckDuckGo Email Protection spec: replace `@` with `_at_` only (dots in the domain are preserved), then append `_localPart@duck.com`. Example: `brian@gmail.com` + `jane@duck.com` → `brian_at_gmail.com_jane@duck.com`.
 
 ```rust
 fn convert_to_duck_email(email: &str, duck_address: &str) -> String {
     let local_part = duck_address.split('@').next().unwrap_or(duck_address);
-    let sanitized = email.replace('@', "_at_").replace('.', "_");
+    let sanitized = email.replace('@', "_at_");
     format!("{sanitized}_{local_part}@duck.com")
 }
 ```
+
+Note: this diverges from the current iOS Quackify behavior, which still replaces dots — iOS has the same bug and should be fixed separately.
 
 ## egui quirks in this codebase
 

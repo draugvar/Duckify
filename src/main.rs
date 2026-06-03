@@ -24,7 +24,7 @@ fn is_valid_email(email: &str) -> bool {
 
 fn convert_to_duck_email(email: &str, duck_address: &str) -> String {
     let local_part = duck_address.split('@').next().unwrap_or(duck_address);
-    let sanitized = email.replace('@', "_at_").replace('.', "_");
+    let sanitized = email.replace('@', "_at_");
     format!("{sanitized}_{local_part}@duck.com")
 }
 

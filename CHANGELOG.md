@@ -2,6 +2,11 @@
 
 All notable changes to Quackify will be documented in this file.
 
+## [1.2.1] - 2026-06-03
+
+### Fixed
+- Conversion logic incorrectly replaced dots in the source email with underscores. Per DuckDuckGo's spec, only `@` is replaced (with `_at_`); dots in the domain must be preserved. Example: `brian@gmail.com` with Duck address `jane@duck.com` now correctly produces `brian_at_gmail.com_jane@duck.com` (previously produced `brian_at_gmail_com_jane@duck.com`, which DuckDuckGo would not route)
+
 ## [1.2.0] - 2026-05-11
 
 ### Changed
